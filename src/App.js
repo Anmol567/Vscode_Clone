@@ -2,44 +2,54 @@ import "./styles.css";
 import FileStructure from "./data";
 import { useMemo, useState } from "react";
 const ParseFolder = ({ root, fileStructure }) => {
-  const folders = root.children?.filter((child) => !child.isFile);
-  const files = root.children?.filter((child) => child.isFile);
-  const [render, setRender] = useState(0);
+  const [expand, setExpand] = useState(false);
   const [addEntity, setAddEntity] = useState(false);
   return (
-    <div style={{ marginLeft: `${JSON.parse(root.depth) + 5}px` }}>
+    <div
+      style={{ marginLeft: `${JSON.parse(root.depth) + 5}px`, padding: "4px" }}
+    >
       <div style={{ display: "flex" }}>
-        <div>{root.name}</div>
+        <div onClick={() => setExpand((prev) => !prev)}>
+          {!root.isFile ? <span>📁</span> : <span>📄</span>}
+          <span style={{ marginLeft: "4px" }}>{root.name}</span>
+        </div>
         {!root.isFile && (
           <>
             <div
               style={{ paddingLeft: "4px" }}
-              onClick={() => setAddEntity("folder")}
+              onClick={() => {
+                setAddEntity("folder");
+                setExpand(true);
+              }}
             >
               <button>Folder +</button>
             </div>
             <div
               style={{ paddingLeft: "4px" }}
-              onClick={() => setAddEntity("file")}
+              onClick={() => {
+                setAddEntity("file");
+                setExpand(true);
+              }}
             >
               <button>File +</button>
             </div>
           </>
         )}
       </div>
-      {root.children.map((child) => {
-        return (
-          <ParseFolder
-            root={child}
-            key={child.id}
-            fileStructure={fileStructure}
-          />
-        );
-      })}
+      {expand &&
+        root.children.map((child) => {
+          return (
+            <ParseFolder
+              root={child}
+              key={child.id}
+              fileStructure={fileStructure}
+            />
+          );
+        })}
       <div
         style={{
           marginLeft: `${JSON.parse(root.depth) + 5}px`,
-          position: "absolute"
+          position: "absolute",
         }}
       >
         {addEntity && (
@@ -50,6 +60,7 @@ const ParseFolder = ({ root, fileStructure }) => {
               if (val) {
                 if (addEntity === "file") fileStructure.addFile(root.id, val);
                 else fileStructure.addFolder(root.id, val);
+                setExpand(true);
               }
               setAddEntity(null);
             }}
@@ -59,6 +70,7 @@ const ParseFolder = ({ root, fileStructure }) => {
                 if (val) {
                   if (addEntity === "file") fileStructure.addFile(root.id, val);
                   else fileStructure.addFolder(root.id, val);
+                  setExpand(true);
                   setAddEntity(null);
                 }
               }
