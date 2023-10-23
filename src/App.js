@@ -1,7 +1,7 @@
 import "./styles.css";
-import FileStructure from "./data";
+import useFileStructure from "./data";
 import { useMemo, useState } from "react";
-const ParseFolder = ({ root, fileStructure }) => {
+const ParseFolder = ({ root, addFile, addFolder }) => {
   const [expand, setExpand] = useState(false);
   const [addEntity, setAddEntity] = useState(false);
   return (
@@ -42,7 +42,8 @@ const ParseFolder = ({ root, fileStructure }) => {
             <ParseFolder
               root={child}
               key={child.id}
-              fileStructure={fileStructure}
+              addFile={addFile}
+              addFolder={addFolder}
             />
           );
         })}
@@ -58,8 +59,8 @@ const ParseFolder = ({ root, fileStructure }) => {
             onBlur={(e) => {
               const val = e.target.value;
               if (val) {
-                if (addEntity === "file") fileStructure.addFile(root.id, val);
-                else fileStructure.addFolder(root.id, val);
+                if (addEntity === "file") addFile(root.id, val);
+                else addFolder(root.id, val);
                 setExpand(true);
               }
               setAddEntity(null);
@@ -68,8 +69,8 @@ const ParseFolder = ({ root, fileStructure }) => {
               if (e.key === "Enter") {
                 const val = e.target.value;
                 if (val) {
-                  if (addEntity === "file") fileStructure.addFile(root.id, val);
-                  else fileStructure.addFolder(root.id, val);
+                  if (addEntity === "file") addFile(root.id, val);
+                  else addFolder(root.id, val);
                   setExpand(true);
                   setAddEntity(null);
                 }
@@ -82,16 +83,11 @@ const ParseFolder = ({ root, fileStructure }) => {
   );
 };
 export default function App() {
-  const fileStructure = useMemo(() => {
-    return new FileStructure();
-  }, []);
-  console.log(fileStructure);
+  const { root, addFile, addFolder } = useFileStructure();
+  console.log(root, addFile);
   return (
     <div className="App">
-      <ParseFolder
-        root={fileStructure.folders["0"]}
-        fileStructure={fileStructure}
-      />
+      <ParseFolder root={root} addFile={addFile} addFolder={addFolder} />
     </div>
   );
 }
